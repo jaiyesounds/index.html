@@ -10,7 +10,8 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 html,body{height:100%;margin:0;background:#000;overflow:hidden;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
 *{box-sizing:border-box}
 #stage{position:relative;height:100%;width:min(100vw,calc(100svh*9/16));margin:0 auto;overflow:hidden;background:#111;color:#fff;user-select:none}
-#cam{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1);background:#1a1a1f}
+#bgv{position:absolute;inset:-8%;width:116%;height:116%;object-fit:cover;transform:scaleX(-1);filter:blur(22px) brightness(.85)}
+#cam{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1);background:transparent}
 .sh{text-shadow:0 1px 3px rgba(0,0,0,.8),0 0 8px rgba(0,0,0,.45)}
 .av{width:28px;height:28px;border-radius:50%;flex:none;background-size:cover;background-position:center;display:grid;place-items:center;font-size:12px;font-weight:700;color:#fff}
 #top{position:absolute;top:8px;left:8px;right:8px;display:flex;justify-content:space-between;align-items:flex-start}
@@ -53,6 +54,7 @@ html,body{height:100%;margin:0;background:#000;overflow:hidden;font-family:syste
 #sheet .r{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 #sheet button.b{background:#fe2c55;color:#fff;border:0;border-radius:8px;padding:9px 12px;font-weight:600}
 #sheet button.g{background:var(--in);color:var(--tx)}
+#sheet select{width:100%;background:var(--in);color:var(--tx);border:1px solid var(--ln);border-radius:8px;padding:8px;font:inherit}
 #sheet p{color:var(--mu);margin:2px 0 0;font-size:11.5px}
 #sheet input[type=range]{width:100%}
 #go{position:absolute;inset:0;z-index:9;background:#0b0b0e;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:24px}
@@ -60,7 +62,7 @@ html,body{height:100%;margin:0;background:#000;overflow:hidden;font-family:syste
 #go button{background:#fe2c55;color:#fff;border:0;border-radius:26px;padding:14px 34px;font-size:16px;font-weight:700}
 </style></head><body>
 <div id="stage">
-<video id="cam" autoplay muted playsinline></video>
+<video id="bgv" autoplay muted playsinline></video><video id="cam" autoplay muted playsinline></video>
 <div id="top">
  <div id="me"><div class="av" id="mav">M</div><div class="sh"><b id="mn">My Name</b><small id="lk">0 likes</small></div><button id="fol">Follow</button></div>
  <div id="vw" class="sh"><div id="vav" style="display:flex"></div><span id="vc">0</span></div>
@@ -80,21 +82,20 @@ html,body{height:100%;margin:0;background:#000;overflow:hidden;font-family:syste
  <p>Shown top left. Profile picture:</p><input type="file" id="sPic" accept="image/*">
  <label>Chips (comma separated)</label><input type="text" id="sChips" value="New Music, Weekly ranking">
  <label>Starting likes</label><input type="number" id="sLikes" value="1200">
- <label>Camera zoom: <span id="vZ">1.00</span>×</label><input type="range" id="sZ" min="0.5" max="2" step="0.05" value="1"><p>Lower = zoomed out, more of you fits.</p><label>Camera left / right</label><input type="range" id="sOx" min="-40" max="40" value="0"><label>Camera up / down</label><input type="range" id="sOy" min="-40" max="40" value="0"><label><input type="checkbox" id="sFit"> Show the whole camera picture (adds dark edges)</label><label>Profile picture zoom</label><input type="range" id="sPz" min="40" max="300" value="100"><label>Profile picture left / right</label><input type="range" id="sPx" min="0" max="100" value="50"><label>Profile picture up / down</label><input type="range" id="sPy" min="0" max="100" value="50"><p>Choose the picture first (above), then adjust.</p><label>Audience pictures (optional)</label><input type="file" id="sAud" accept="image/*" multiple>
+ <label>Camera zoom: <span id="vZ">1.00</span>×</label><input type="range" id="sZ" min="0.5" max="2" step="0.05" value="1"><p>Lower = zoomed out: you and your background get smaller and the frame stays put. Gaps are filled with a soft blur, never black.</p><p id="zinfo">Camera info appears after you go live.</p><label>Camera left / right</label><input type="range" id="sOx" min="-40" max="40" value="0"><label>Camera up / down</label><input type="range" id="sOy" min="-40" max="40" value="0"><label><input type="checkbox" id="sFit"> Show the whole camera picture (soft blurred edges)</label><label>Profile picture zoom</label><input type="range" id="sPz" min="40" max="300" value="100"><label>Profile picture left / right</label><input type="range" id="sPx" min="0" max="100" value="50"><label>Profile picture up / down</label><input type="range" id="sPy" min="0" max="100" value="50"><p>Choose the picture first (above), then adjust.</p><label>Audience pictures (optional)</label><input type="file" id="sAud" accept="image/*" multiple>
  <p>Adds your photos on top of the built-in audience pictures.</p>
  <label>Lyrics (one line per row, no timestamps)</label><textarea id="sLyr" placeholder="First line&#10;Catchy hook line&#10;Another line"></textarea>
  <p>Some viewers quote random lines from here. Most don’t.</p>
  <label>Section markers, one per line, e.g. hook 0:32</label><textarea id="sSec" placeholder="intro 0:00&#10;verse 1 0:12&#10;hook 0:32&#10;drop 0:45"></textarea>
  <p>Names: intro, verse 1, hook, bridge, drop, outro.</p>
  <button class="b g" id="sApply" style="margin-top:8px">Apply lyrics &amp; sections</button>
- <label>Mic sensitivity: <span id="vSens">5</span></label><input type="range" id="sSens" min="1" max="10" value="5">
- <p>Higher = a quieter voice grows the crowd. Crowd maxes at 250.</p>
+ 
  <label>Comment speed: <span id="vSpd">1.0</span>×</label><input type="range" id="sSpd" min="0.4" max="2.5" step="0.1" value="1">
  <p>Multiplies how often comments appear.</p>
  <label>Drop sensitivity: <span id="vDrop">5</span></label><input type="range" id="sDrop" min="1" max="10" value="5">
  <p>How easily loud jumps in the song trigger “that drop!”.</p>
  <label><input type="checkbox" id="sLab" checked> Show “Simulated audience” label</label>
- <label><input type="checkbox" id="sVoice"> Include my voice in the recording (off = song only)</label>
+ <label><input type="checkbox" id="sVoice"> Include my voice in the recording (off = song only)</label><label>Recording shows</label><select id="sRm"><option value="full">Full live screen (comments, counts, hearts)</option><option value="clean">Face and song only</option></select>
  <div class="r" style="margin-top:10px"><button class="b" id="sClose">Close</button></div>
  <p>Crowd: <span id="stV">0</span> viewers · <span id="stF">0</span> new followers</p>
 </div>
@@ -105,10 +106,11 @@ html,body{height:100%;margin:0;background:#000;overflow:hidden;font-family:syste
 const $=s=>document.querySelector(s),R=a=>a[Math.random()*a.length|0];
 const C={sens:5,spd:1,drop:5,voice:false,z:1,ox:0,oy:0,fit:false};
 let ac,micSrc,micAn,songAn,recDest,songSrc,stream,audio=new Audio(),playing=false;
-let viewers=3,likes=1200,followers=0,lines=[],secs=[],lastLine=-1,lastSec=-1,lastDrop=0,fast=0,slow=0;
+let viewers=110,likes=1200,followers=120,lines=[],secs=[],lastLine=-1,lastSec=-1,lastDrop=0,fast=0,slow=0;
 const mb=new Float32Array(1024),sb=new Float32Array(1024);
 const names="Amara,luna.vibes,kofi_k,Mateo,sara.in.sthlm,Jake_AU,ngozi.x,Elin,Priya,liam.t,Chloe,yusuf,Freya,tunde.beats,Aisha,noah_ca,Ingrid,Kwame,Zoe,diego.m,Sofia,Oskar,mia.rae,Chidi,Hannah,Ravi,Lucy,Ade,Maja,Tyler,Fatima,Ben,Nia,Axel,Esi,Kai,Isla,Ola,Jade,Samir".split(",");
 const happy=["this is fire 🔥🔥","so good!!","love this vibe ❤️","omg yes 😍","vibes immaculate","this goes hard","already obsessed","the energy 🙌","okay this is a BANGER","talent!! 👏","chills 🥹","playing this all day","this deserves more views","who else is here early?","goosebumps fr","yesss keep going 🔥","beautiful voice","can’t stop smiling","the mix is so clean","sending love from Sweden 🇸🇪","hi from Lagos 🇳🇬","greetings from Australia 🇦🇺","UK is listening 🇬🇧","Canada here 🇨🇦 loving it"];
+const promo=["please play my song 🙏","play my song next please","where can I submit my song?","how do I submit my music to you?","did you see my skip?","pls check my page, new song out","can you play my track??","where do I send my song?"];
 const quest=["what song is this?","where can I find it?","is it on Spotify?","when does it drop on streaming?","what’s the song called?","is this new?","link to the song??","can you make a full version?"];
 const crit=["not feeling this one","mid","the vocals are too low","beat is a bit repetitive","hmm not for me","mix is muddy","needs more bass","too quiet, turn it up","kinda generic ngl"];
 function col(n){let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))%360;return`hsl(${h} 55% 45%)`}
@@ -118,16 +120,18 @@ function hash(n){let h=7;for(const c of n)h=(h*31+c.charCodeAt(0))>>>0;return h}
 function face(n){const h=hash(n),sk=["#f1c9a5","#e0a97d","#c68642","#8d5524","#5c3a21","#ffdbac"][h%6],hr=["#111","#3b2a1a","#7a4a21","#c9a227","#2b2b2b","#a33"][(h>>3)%6],st=(h>>6)%3,bg=`hsl(${h%360} 55% 55%)`,sh=`hsl(${(h*7)%360} 50% 40%)`;
  const back=st===1?`<circle cx="50" cy="38" r="31" fill="${hr}"/>`:"",top=st===0?`<path d="M22 46Q22 14 50 14Q78 14 78 46Q66 28 50 30Q34 28 22 46Z" fill="${hr}"/>`:st===2?`<path d="M20 62Q14 12 50 12Q86 12 80 62L74 42Q50 26 26 42Z" fill="${hr}"/>`:"";
  return"data:image/svg+xml,"+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="${bg}"/>${back}<ellipse cx="50" cy="106" rx="36" ry="30" fill="${sh}"/><ellipse cx="50" cy="48" rx="21" ry="25" fill="${sk}"/>${top}<circle cx="42" cy="50" r="2.4" fill="#222"/><circle cx="58" cy="50" r="2.4" fill="#222"/><path d="M43 61Q50 67 57 61" stroke="#522" stroke-width="2" fill="none"/></svg>`)}
-function av(n){const h=hash(n),src=pics.length?pics[h%pics.length]:face(n);return`<div class="av" style="background-image:url('${src}')"></div>`}
+function avSrc(n){const h=hash(n);return pics.length?pics[h%pics.length]:face(n)}
+function av(n){const src=avSrc(n);return`<div class="av" style="background-image:url('${src}')"></div>`}
 function fmt(n){return n>=1000?(n/1000).toFixed(1).replace(".0","")+"K":""+n}
 function ts(t){return(t/60|0)+":"+String(Math.floor(t%60)).padStart(2,"0")}
 const feed=$("#feed");
-function add(n,t,k,mine){const d=document.createElement("div");d.className="cm "+(k||"");
+const cms=[],hts=[];
+function add(n,t,k,mine){cms.push({n,t,k,at:performance.now()});if(cms.length>9)cms.shift();const d=document.createElement("div");d.className="cm "+(k||"");
  d.innerHTML=k==="j"?`${av(n)}<div><span class="u">${n}</span> joined</div>`:`${av(n)}<div><div class="u">${n}</div><div class="t"></div></div>`;
  if(k!=="j")d.querySelector(".t").textContent=t;feed.appendChild(d);while(feed.children.length>8)feed.firstChild.remove()}
-function heart(emo){const h=document.createElement("div");h.className="fh";h.textContent=emo||R(["❤️","💖","🧡","💗","💜"]);h.style.setProperty("--dx",(Math.random()*80-40)+"px");$("#stage").appendChild(h);setTimeout(()=>h.remove(),2300)}
-function setViewAv(){$("#vav").innerHTML=[1,2,3].map(()=>av(uname()).replace('class="av"','class="av"')).join("")}
-function render(){$("#vc").textContent=Math.round(viewers);$("#lk").textContent=fmt(Math.round(likes))+" likes";$("#stV").textContent=Math.round(viewers);$("#stF").textContent=followers}
+function heart(emo){hts.push({e:emo||"\u2764\ufe0f",at:performance.now(),dx:Math.random()*80-40});if(hts.length>40)hts.shift();const h=document.createElement("div");h.className="fh";h.textContent=emo||"❤️";h.style.setProperty("--dx",(Math.random()*80-40)+"px");$("#stage").appendChild(h);setTimeout(()=>h.remove(),2300)}
+let vnames=[];function setViewAv(){vnames=[uname(),uname(),uname()];$("#vav").innerHTML=vnames.map(n=>av(n)).join("")}
+function render(){$("#vc").textContent=Math.round(viewers);$("#lk").textContent=fmt(Math.round(likes))+" likes · "+followers+" followers";$("#stV").textContent=Math.round(viewers);$("#stF").textContent=followers}
 // ---- song context ----
 function parseLyrics(){lines=$("#sLyr").value.split("\n").map(s=>s.replace(/^\s*\[[^\]]*\]\s*/,"").trim()).filter(Boolean).map(x=>({x}));
  secs=[];for(const l of $("#sSec").value.split("\n")){const n=l.match(/(intro|verse\s*\d*|pre-?chorus|chorus|hook|bridge|drop|outro|breakdown)/i),t=l.match(/(\d+):(\d+)/);if(n&&t)secs.push({t:+t[1]*60+ +t[2],n:n[1].toLowerCase().replace(/\s+/g," ")})}secs.sort((a,b)=>a.t-b.t);lastLine=lastSec=-1}
@@ -148,20 +152,18 @@ function ctxComment(){const t=audio.currentTime,s=cur(secs,t);const o=[];
 function nextComment(){
  if(viewers>=2){const r=Math.random();let txt,k="";
   if(playing&&Math.random()<.4&&(txt=ctxComment())){}
-  else if(r<.6)txt=R(happy);else if(r<.75)txt=R(quest);else if(r<.9)txt=R(crit);
+  else if(r<.52)txt=R(happy);else if(r<.65)txt=R(quest);else if(r<.78)txt=R(crit);else if(r<.88)txt=R(promo);
   else{add(uname(),"","j");return}
   add(uname(),txt,k)}}
 function loop(){nextComment();const base=4200-(viewers/250)*3700;setTimeout(loop,Math.max(280,base*(.6+Math.random()*.8)/C.spd))}
 function reactLater(f){if(viewers<3||Math.random()>.75)return;setTimeout(()=>{const t=f();if(t)add(uname(),t)},400+Math.random()*1400);if(Math.random()<.4)setTimeout(()=>{const t=f();if(t)add(uname(),t)},1800+Math.random()*1500)}
 function rms(an,b){an.getFloatTimeDomainData(b);let s=0;for(let i=0;i<b.length;i++)s+=b[i]*b[i];return Math.sqrt(s/b.length)}
-let last=performance.now(),tapAcc=0;
+let last=performance.now(),tapAcc=0,vDir=1,nextVt=0,nextFt=0;
 setInterval(()=>{const now=performance.now(),dt=Math.min(.5,(now-last)/1000);last=now;
- const mic=micAn?rms(micAn,mb):0,song=songAn&&playing?rms(songAn,sb):0;
- const lvl=micAn?mic*C.sens*1.6:song*C.sens*.5,norm=Math.min(1,lvl);
- const target=norm<.05?0:Math.round(250*Math.pow(norm,.7));
- if(target>viewers)viewers=Math.min(250,viewers+Math.min(target-viewers,45*dt+1));else viewers=Math.max(0,viewers-4*dt);
- if(viewers>5&&target>viewers&&Math.random()<.35)add(uname(),"","j");
- if(viewers>120&&Math.random()<.12){followers++;likes+=1+Math.random()*6|0}
+ const song=songAn&&playing?rms(songAn,sb):0;
+ if(now>nextVt){if(Math.random()<.12)vDir=-vDir;if(viewers<=102)vDir=1;if(viewers>=243)vDir=-1;viewers=Math.max(95,Math.min(250,Math.round(viewers)+vDir*(5+(Math.random()*6|0))*(Math.random()<.2?-1:1)));nextVt=now+1500+Math.random()*2500}
+ if(Math.random()<dt*1.5)add(uname(),"","j");
+ if(now>nextFt){followers=Math.max(0,followers+(Math.random()<.7?1+(Math.random()*4|0):-(1+(Math.random()*2|0))));nextFt=now+3000+Math.random()*9000}
  tapAcc+=viewers*.05*dt;while(tapAcc>=1){tapAcc--;likes++;if(Math.random()<.3)heart()}
  if(playing){const t=audio.currentTime;$("#pg").style.width=(t/(audio.duration||1)*100)+"%";
   fast+=(song-fast)*.5;slow+=(song-slow)*.03;
@@ -177,7 +179,7 @@ function ensureCtx(){if(ac)return;ac=new(window.AudioContext||window.webkitAudio
 async function startCam(){const tries=[{video:{facingMode:"user",width:{ideal:720},height:{ideal:1280}},audio:{echoCancellation:true,noiseSuppression:false}},{video:true,audio:true},{video:true}];let e;
  for(const c of tries){try{stream=await navigator.mediaDevices.getUserMedia(c);break}catch(x){e=x}}
  if(!stream)throw e||new Error("No camera");
- $("#cam").srcObject=stream;$("#cam").play().catch(()=>{});ensureCtx();
+ $("#cam").srcObject=stream;$("#bgv").srcObject=stream;$("#bgv").play().catch(()=>{});trk=stream.getVideoTracks()[0];const cp=trk.getCapabilities?trk.getCapabilities():{},st=trk.getSettings();hw=cp.zoom&&cp.zoom.max>cp.zoom.min?{min:cp.zoom.min,max:cp.zoom.max}:null;$("#zinfo").textContent="Camera sends "+st.width+"×"+st.height+". "+(hw?"Real camera zoom available: "+hw.min+"× to "+hw.max+"×.":"No real camera zoom in the browser on this camera, so zoom uses the soft-blur method.");camAdj();$("#cam").play().catch(()=>{});ensureCtx();
  if(stream.getAudioTracks().length){micSrc=ac.createMediaStreamSource(stream);micAn=ac.createAnalyser();micAn.fftSize=1024;micSrc.connect(micAn)}}
 $("#goBtn").onclick=async()=>{$("#err").textContent="";try{await startCam();$("#go").style.display="none";setViewAv();loop()}catch(e){$("#err").textContent="Error: "+(e&&e.name||"Unknown")+(e&&e.message?" — "+e.message:"")}};
 // ---- song ----
@@ -195,27 +197,49 @@ $("#fol").onclick=e=>{e.target.classList.toggle("on");e.target.textContent=e.tar
 function chips(){$("#chips").innerHTML=$("#sChips").value.split(",").map(s=>s.trim()).filter(Boolean).map(s=>`<span class="chip"><i></i>${s.replace(/[<>&]/g,"")}</span>`).join("")}
 $("#sChips").oninput=chips;chips();
 $("#sName").oninput=e=>{$("#mn").textContent=e.target.value||"My Name";if(!$("#mav").style.backgroundImage)$("#mav").textContent=(e.target.value||"M")[0].toUpperCase()};
-let pw=1,ph=1,hasPic=false;
+let pw=1,ph=1,hasPic=false,meSrc="";
 function picAdj(){if(!hasPic)return;const z=$("#sPz").value,m=$("#mav");m.style.backgroundSize=pw>=ph?`auto ${z}%`:`${z}% auto`;m.style.backgroundPosition=`${$("#sPx").value}% ${$("#sPy").value}%`}
-$("#sPic").onchange=e=>{const f=e.target.files[0];if(!f)return;const u=URL.createObjectURL(f),i=new Image();i.onload=()=>{pw=i.width;ph=i.height;hasPic=true;const m=$("#mav");m.style.backgroundImage=`url(${u})`;m.style.backgroundRepeat="no-repeat";m.textContent="";picAdj()};i.src=u};
+$("#sPic").onchange=e=>{const f=e.target.files[0];if(!f)return;const u=URL.createObjectURL(f),i=new Image();i.onload=()=>{pw=i.width;ph=i.height;hasPic=true;meSrc=u;const m=$("#mav");m.style.backgroundImage=`url(${u})`;m.style.backgroundRepeat="no-repeat";m.textContent="";picAdj()};i.src=u};
 ["#sPz","#sPx","#sPy"].forEach(s=>$(s).oninput=picAdj);
 $("#sLikes").oninput=e=>{likes=+e.target.value||0};
-function camAdj(){const c=$("#cam");c.style.objectFit=C.fit?"contain":"cover";c.style.transform=`translate(${C.ox}%,${C.oy}%) scale(${-C.z},${C.z})`}
+let SZ=1,hw=null,hwLast=0,trk=null;
+function camAdj(){const c=$("#cam");let hz=1;
+ if(hw){hz=Math.min(hw.max,Math.max(hw.min,C.z));if(hz!==hwLast){hwLast=hz;trk.applyConstraints({advanced:[{zoom:hz}]}).catch(()=>{})}}
+ SZ=C.z/hz;c.style.objectFit=C.fit?"contain":"cover";c.style.transform=`translate(${C.ox}%,${C.oy}%) scale(${-SZ},${SZ})`}
 $("#sZ").oninput=e=>{C.z=+e.target.value;$("#vZ").textContent=C.z.toFixed(2);camAdj()};
 $("#sOx").oninput=e=>{C.ox=+e.target.value;camAdj()};$("#sOy").oninput=e=>{C.oy=+e.target.value;camAdj()};
 $("#sFit").onchange=e=>{C.fit=e.target.checked;camAdj()};
 $("#sAud").onchange=e=>{pics=pics.concat([...e.target.files].map(f=>URL.createObjectURL(f)));setViewAv()};
 $("#sApply").onclick=parseLyrics;
-$("#sSens").oninput=e=>{C.sens=+e.target.value;$("#vSens").textContent=e.target.value};
+
 $("#sSpd").oninput=e=>{C.spd=+e.target.value;$("#vSpd").textContent=(+e.target.value).toFixed(1)};
 $("#sDrop").oninput=e=>{C.drop=+e.target.value;$("#vDrop").textContent=e.target.value};
 $("#sLab").onchange=e=>{$("#lab").style.display=e.target.checked?"":"none"};
 $("#sVoice").onchange=e=>{C.voice=e.target.checked};
 likes=1200;$("#mav").style.background=col("me");
 // ---- record (face + song only, no overlays) ----
+const imgs={};function im(u){return imgs[u]||(imgs[u]=Object.assign(new Image(),{src:u}))}
+function rr(x,a,b,w,h,r,c){x.save();x.shadowBlur=0;x.fillStyle=c;x.beginPath();x.roundRect?x.roundRect(a,b,w,h,r):x.rect(a,b,w,h);x.fill();x.restore()}
+function cav(x,u,cx,cy,r){x.save();x.beginPath();x.arc(cx,cy,r,0,7);x.clip();const i=im(u);if(i.complete&&i.naturalWidth)x.drawImage(i,cx-r,cy-r,2*r,2*r);else{x.fillStyle="#666";x.fillRect(cx-r,cy-r,2*r,2*r)}x.restore()}
+function ov(x,W){const k=W/360,now=performance.now();x.save();x.scale(k,k);x.textBaseline="middle";x.shadowColor="rgba(0,0,0,.7)";x.shadowBlur=4;
+ const nm=$("#mn").textContent,lk=$("#lk").textContent;x.font="bold 13px sans-serif";const w1=x.measureText(nm).width;x.font="10.5px sans-serif";const tw=Math.min(125,Math.max(w1,x.measureText(lk).width));
+ rr(x,8,8,52+tw+6+58+4,42,21,"rgba(0,0,0,.28)");
+ x.save();x.beginPath();x.arc(29,29,18,0,7);x.clip();
+ if(meSrc&&im(meSrc).complete){const d=36,z=$("#sPz").value/100,w=pw>=ph?d*z*pw/ph:d*z,h=pw>=ph?d*z:d*z*ph/pw;x.drawImage(im(meSrc),11+(d-w)*$("#sPx").value/100,11+(d-h)*$("#sPy").value/100,w,h)}else{x.fillStyle=col("me");x.fillRect(11,11,36,36)}
+ x.restore();x.fillStyle="#fff";x.font="bold 13px sans-serif";x.fillText(nm,52,22,tw);x.font="10.5px sans-serif";x.fillText(lk,52,38,tw);
+ const f=$("#fol");rr(x,52+tw+6,15,58,28,14,f.classList.contains("on")?"rgba(255,255,255,.25)":"#fe2c55");x.fillStyle="#fff";x.font="bold 12px sans-serif";x.textAlign="center";x.fillText(f.textContent,52+tw+35,29);x.textAlign="left";
+ const vc=$("#vc").textContent;x.font="12px sans-serif";const cw=x.measureText(vc).width+16;rr(x,352-cw,12,cw,24,12,"rgba(0,0,0,.28)");x.fillStyle="#fff";x.fillText(vc,360-cw,24);
+ for(let i=0;i<3;i++)cav(x,avSrc(vnames[i]||"a"),352-cw-12-i*16,24,11);
+ let cx=8;for(const c of $("#sChips").value.split(",").map(s=>s.trim()).filter(Boolean)){x.font="12px sans-serif";const w=x.measureText(c).width+30;rr(x,cx,58,w,24,12,"rgba(0,0,0,.3)");x.fillStyle="#ffc93c";x.beginPath();x.arc(cx+12,70,4.5,0,7);x.fill();x.fillStyle="#fff";x.fillText(c,cx+22,70);cx+=w+6}
+ let y=572;for(let i=cms.length-1;i>=0&&y>400;i--,y-=40){const c=cms[i];x.globalAlpha=Math.max(0,Math.min(1,(now-c.at)/400)*Math.min(1,(y-390)/110));cav(x,avSrc(c.n),22,y,14);
+  if(c.k==="j"){x.fillStyle="#fff";x.font="12px sans-serif";x.fillText(c.n+" joined",42,y,260)}else{x.fillStyle="rgba(255,255,255,.72)";x.font="12px sans-serif";x.fillText(c.n,42,y-9,260);x.fillStyle=c.k==="g"?"#ffd86b":"#fff";x.font="13.5px sans-serif";x.fillText(c.t,42,y+8,270)}}
+ x.globalAlpha=1;rr(x,8,596,250,38,19,"rgba(0,0,0,.32)");x.fillStyle="rgba(255,255,255,.75)";x.font="14px sans-serif";x.fillText("Add comment\u2026",22,615);
+ rr(x,266,596,38,38,19,"rgba(0,0,0,.3)");rr(x,312,596,38,38,19,"#fe2c55");x.font="19px sans-serif";x.textAlign="center";x.fillStyle="#fff";x.fillText("\ud83c\udf39",285,616);x.fillText("\u2665",331,616);
+ for(const h of hts){const a=(now-h.at)/2200;if(a<0||a>=1)continue;x.globalAlpha=1-a;x.font=`${26*(.6+.7*a)}px sans-serif`;x.fillText(h.e,331+h.dx*a,590-340*a)}
+ x.globalAlpha=1;x.restore()}
 let mr,chunks=[],rc,raf;
-function drawRec(){const v=$("#cam"),x=rc.getContext("2d"),W=rc.width,H=rc.height,vw=v.videoWidth||W,vh=v.videoHeight||H,s=(C.fit?Math.min:Math.max)(W/vw,H/vh)*C.z,dw=vw*s,dh=vh*s;
- x.fillStyle="#000";x.fillRect(0,0,W,H);x.drawImage(v,(W-dw)/2-C.ox/100*W,(H-dh)/2+C.oy/100*H,dw,dh);raf=requestAnimationFrame(drawRec)}
+function drawRec(){const v=$("#cam"),x=rc.getContext("2d"),W=rc.width,H=rc.height,vw=v.videoWidth||W,vh=v.videoHeight||H,s=(C.fit?Math.min:Math.max)(W/vw,H/vh)*SZ,dw=vw*s,dh=vh*s;
+ if(dw<W||dh<H){x.save();x.filter="blur(22px)";const sb=Math.max(W/vw,H/vh)*1.15;x.drawImage(v,(W-vw*sb)/2,(H-vh*sb)/2,vw*sb,vh*sb);x.restore()}x.drawImage(v,(W-dw)/2-C.ox/100*W,(H-dh)/2+C.oy/100*H,dw,dh);if($("#sRm").value==="full")ov(x,W);raf=requestAnimationFrame(drawRec)}
 $("#sRec").onclick=()=>{const b=$("#sRec");
  if(mr&&mr.state==="recording"){mr.stop();return}
  if(!window.MediaRecorder){$("#out").textContent="Recording isn’t supported in this browser.";return}
