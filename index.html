@@ -97,6 +97,9 @@ html,body{height:100%;margin:0;background:#000;overflow:hidden;font-family:syste
 #bar .ib{width:36px;height:36px;background:rgba(255,255,255,.16);display:grid;place-items:center;position:relative;font-size:18px}
 #bar .ib svg{width:20px;height:20px}
 #shn{position:absolute;right:3px;bottom:2px;font-size:9px;font-style:normal;font-weight:800;color:#fff}
+.lv{height:18px;display:inline-flex;align-items:center;gap:3px;background:linear-gradient(#7088e8,#4b65d1);border-radius:6px;padding:0 6px 0 4px;font-size:12.5px;font-weight:800;color:#fff;margin-right:5px;vertical-align:middle}
+.hb{height:18px;display:inline-flex;align-items:center;background:rgba(255,140,50,.38);border-radius:6px;padding:0 4px;margin-right:5px;vertical-align:middle}
+.lv svg,.hb svg{display:block}
 </style></head><body>
 <div id="stage">
 <div id="camw"><video id="bgv" autoplay muted playsinline></video><video id="cam" autoplay muted playsinline></video></div>
@@ -167,7 +170,8 @@ function fmt(n){return n>=1000?(n/1000).toFixed(1).replace(".0","")+"K":""+n}
 function ts(t){return(t/60|0)+":"+String(Math.floor(t%60)).padStart(2,"0")}
 const feed=$("#feed");
 const cms=[],hts=[];
-function badge(n){const h=hash(n),l=3+h%38;if(h%4===0)return"";return`<span class="lv">${l>15?"\u25c7":"\u25b3"} ${l}</span>`+(h%5===0?`<span class="hb">\u2665</span>`:"")}
+const GEM='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"><path d="M12 3L21 10.5 12 21 3 10.5ZM3 10.5L12 14.5 21 10.5M12 3L8.5 10.5M12 3L15.5 10.5"/></svg>',TRI='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"><path d="M12 3L21.5 20.5H2.5ZM7.3 11.8H16.7L12 20.5Z"/></svg>',HRT='<svg viewBox="0 0 24 24" width="13" height="13"><path d="M12 21C5 15.5 2.5 12.5 2.5 8.7 2.5 5.8 4.7 4 7.2 4c2 0 3.6 1 4.8 2.8C13.2 5 14.8 4 16.8 4c2.5 0 4.7 1.8 4.7 4.7 0 3.8-2.5 6.8-9.5 12.3Z" fill="#ffa23a"/><rect x="11" y="8.5" width="2" height="7" rx="1" fill="#fff"/></svg>';
+function badge(n){const h=hash(n),l=3+h%38;if(h%4===0)return"";return`<span class="lv">${l>=15?GEM:TRI}${l}</span>`+(h%5===0?`<span class="hb">${HRT}</span>`:"")}
 function sys(t){const d=document.createElement("div");d.className="cm s";d.innerHTML='<div class="av tk">\u266a</div><div class="t"></div>';d.querySelector(".t").textContent=t;feed.appendChild(d);cms.push({n:"",t,k:"s",at:0})}
 function add(n,t,k,mine){cms.push({n,t,k,at:performance.now()});if(cms.length>9)cms.shift();
  const d=document.createElement("div");d.className="cm "+(k||"");
@@ -265,6 +269,7 @@ likes=1200;$("#mav").style.background="#000";
 const imgs={};function im(u){return imgs[u]||(imgs[u]=Object.assign(new Image(),{src:u}))}
 function rr(x,a,b,w,h,r,c){x.save();x.shadowBlur=0;x.fillStyle=c;x.beginPath();x.roundRect?x.roundRect(a,b,w,h,r):x.rect(a,b,w,h);x.fill();x.restore()}
 function cav(x,u,cx,cy,r){x.save();x.beginPath();x.arc(cx,cy,r,0,7);x.clip();const i=im(u);if(i.complete&&i.naturalWidth)x.drawImage(i,cx-r,cy-r,2*r,2*r);else{x.fillStyle="#666";x.fillRect(cx-r,cy-r,2*r,2*r)}x.restore()}
+const GEMP="M12 3L21 10.5 12 21 3 10.5ZM3 10.5L12 14.5 21 10.5M12 3L8.5 10.5M12 3L15.5 10.5",TRIP="M12 3L21.5 20.5H2.5ZM7.3 11.8H16.7L12 20.5Z",HRTP="M12 21C5 15.5 2.5 12.5 2.5 8.7 2.5 5.8 4.7 4 7.2 4c2 0 3.6 1 4.8 2.8C13.2 5 14.8 4 16.8 4c2.5 0 4.7 1.8 4.7 4.7 0 3.8-2.5 6.8-9.5 12.3Z";
 function wl(x,t,w){const o=[];let l="";for(const d of t.split(" ")){if(l&&x.measureText(l+" "+d).width>w){o.push(l);l=d}else l=l?l+" "+d:d}o.push(l);return o}
 function ov(x,W){const k=W/360,now=performance.now(),G="rgba(45,45,45,.78)";x.save();x.scale(k,k);x.textBaseline="middle";
  const nm=$("#mn").textContent,lk=$("#lk").textContent;x.font="bold 13px sans-serif";const w1=x.measureText(nm).width;x.font="bold 12px sans-serif";const tw=Math.min(110,Math.max(w1,x.measureText(lk).width));
@@ -282,7 +287,8 @@ function ov(x,W){const k=W/360,now=performance.now(),G="rgba(45,45,45,.78)";x.sa
   x.globalAlpha=Math.max(0,Math.min(1,c.at?(now-c.at)/400:1)*Math.min(1,(cy-362)/80));
   if(c.k==="s"){x.fillStyle="#2a2a2a";x.beginPath();x.arc(23,cy,14,0,7);x.fill();x.fillStyle="#fff";x.textAlign="center";x.fillText("\u266a",23,cy);x.textAlign="left";L.forEach((l,j)=>x.fillText(l,44,cy-(L.length-1)*8.5+j*17))}
   else if(c.k==="j"){x.fillStyle="rgba(255,255,255,.2)";x.beginPath();x.arc(23,cy,14,0,7);x.fill();x.save();x.filter="brightness(0) invert(1)";x.textAlign="center";x.font="14px sans-serif";x.fillText("\ud83d\udc4b",23,cy);x.restore();x.font="600 13px sans-serif";x.fillStyle="rgba(255,255,255,.7)";const nw=x.measureText(c.n+" ").width;x.fillText(c.n,44,cy);x.fillStyle="#fff";x.fillText("joined",44+nw,cy)}
-  else{cav(x,avSrc(c.n),23,cy,14);const h=hash(c.n);let bx=44;x.font="bold 10px sans-serif";if(h%4){const l=3+h%38,t=(l>15?"\u25c7":"\u25b3")+" "+l,w=x.measureText(t).width+10;rr(x,bx,cy-16,w,14,6,"#4766dc");x.fillStyle="#fff";x.fillText(t,bx+5,cy-9);bx+=w+4;if(h%5===0){rr(x,bx,cy-16,16,14,6,"#ff8a2a");x.fillText("\u2665",bx+4,cy-9);bx+=20}}
+  else{cav(x,avSrc(c.n),23,cy,14);const h=hash(c.n);let bx=44;x.font="bold 10px sans-serif";if(h%4){const l=3+h%38;x.font="800 12px sans-serif";const w=x.measureText(""+l).width+25;rr(x,bx,cy-17,w,17,6,"#5972d8");x.save();x.translate(bx+4,cy-15.5);x.scale(.58,.58);x.strokeStyle="#fff";x.lineWidth=2.9;x.lineJoin="round";x.stroke(new Path2D(l>=15?GEMP:TRIP));x.restore();x.fillStyle="#fff";x.fillText(""+l,bx+19,cy-8.5);bx+=w+4;
+   if(h%5===0){rr(x,bx,cy-17,19,17,6,"rgba(255,140,50,.4)");x.save();x.translate(bx+3,cy-15);x.scale(.55,.55);x.fillStyle="#ffa23a";x.fill(new Path2D(HRTP));x.fillStyle="#fff";x.fillRect(11,8.5,2,7);x.restore();bx+=23}}
    x.font="600 12px sans-serif";x.fillStyle="rgba(255,255,255,.7)";x.fillText(c.n,bx,cy-9,300-bx);x.font="600 14px sans-serif";x.fillStyle="#fff";x.fillText(c.t,44,cy+8,300)}}
  x.globalAlpha=1;rr(x,8,597,178,35,17,"rgba(255,255,255,.16)");x.fillStyle="rgba(255,255,255,.7)";x.font="15px sans-serif";x.fillText("Type\u2026",22,615);
  x.beginPath();x.arc(166,615,9,0,7);x.fill();x.fillStyle="#222";x.beginPath();x.arc(162.5,612.5,1.5,0,7);x.arc(169.5,612.5,1.5,0,7);x.fill();
